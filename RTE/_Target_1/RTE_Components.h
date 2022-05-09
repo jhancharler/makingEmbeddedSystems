@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'myProj' 
+ * Project: 'withcmsis' 
  * Target:  'Target 1' 
  */
 

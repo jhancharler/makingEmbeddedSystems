@@ -1,57 +1,46 @@
-/*
-1. Turning on the Blue LED (PD15) on the STM32F4.
-2. Flashing BLUE LED (PD15) on the STM32F4.
-3. Flashing all other LEDS (ORANGE = PD13, GREEN = PD12, RED = PD14, BLUE = PD15).
-4. Preprocessor switch
-5. Organise the file structure
-6. Add button, when held down the LED shall not blink.
-*/
+#include "MyLed.h"
+#include "MyButton.h"
+#include "MyEXTI.h"
 
-// GPIO D is on AHB1 bus, from 0x4002 0C00 - 0x4002 0FFF
-// RCC_AHB1ENR
+#include "io_mapping_v1.h"
+#include "MyClock.h"
 
-#include "LEDS.h"
-#include "Buttons.h"
-
-// Compiler switches
-// #define RUN_TESTS_FIRST
-
-// Optional headers
-#ifdef RUN_TESTS_FIRST
-#include "MyTests.h"
-#endif
-
-
-// Program
-void delay(unsigned int cycles);
+unsigned volatile int buttonCounter = 0;
+const ticks_t debounceTime = 20; // ms
+LEDs_e ledToToggle = LED_BLUE;  // state variable showing which LED to toggle
 
 int main(void)
 {
-#ifdef RUN_TESTS_FIRST
-	run_tests();
-#endif
-	
-	initLEDS();
+	initLEDs();
 	initButtons();
+	initSystemClock();
 	
-	enableLED(LED_ON, LED_BLUE);
-	enableLED(LED_ON, LED_RED);
+	enableGpioIRQ(BTN_USR_PORT, BTN_USR_PIN, IRQ_FALLING);
+	turnOnLED(LED_ORANGE);
 	
-	while(1)
+	ticks_t lastTimeLedWasToggled = 0;
+	ticks_t timeNow;
+
+	while (1)
 	{
-		if (readButton(BTN_USR1) == BUTTON_PRESSED)  // toggle only if in some state
+		timeNow = sysClock();
+		if (sysClock() > (lastTimeLedWasToggled + 500))
 		{
-			toggleLED(LED_GREEN);
-			delay(250000);
-		}
-		else
-		{
-			enableLED(LED_ON, LED_GREEN);  // turn on LED
+			toggleLED(ledToToggle);
+			lastTimeLedWasToggled = timeNow;
 		}
 	}
 }
 
-void delay(unsigned int cycles)
+void EXTI0_IRQHandler(void)
 {
-	while (--cycles);
+	clearPendingInterrupt(BTN_USR_PIN);
+	static ticks_t lastIRQ = 0; 
+	if (sysClock() - lastIRQ > debounceTime)
+	{
+		ledToToggle = (ledToToggle == LED_RED) ? LED_GREEN : (LEDs_e)(ledToToggle >> 1);
+	}
+	lastIRQ = sysClock();
 }
+
+

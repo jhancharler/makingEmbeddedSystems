@@ -1,22 +1,17 @@
 #ifndef IO_MAPPING_V1_INCLUDED
 #define IO_MAPPING_V1_INCLUDED
 
-#include "MyGpio.h"
-#include "MyRCC.h"
+#include "io_pin_definitions.h"
 
-#define ENABLE_LED_CLOCK()	ENABLE_PORTD_CLOCK()
+// LEDs
+#define LED_PORT 				GPIO_PORT_D
+#define LED_GREEN_PIN  	GPIO_PIN_12
+#define LED_ORANGE_PIN 	GPIO_PIN_13
+#define LED_RED_PIN  		GPIO_PIN_14
+#define LED_BLUE_PIN  	GPIO_PIN_15
 
-#define LED_PORT					GPIOD
-#define BTN_PORT					GPIOA
-
-typedef gpio_pins_e LEDS_e;
-typedef gpio_pins_e BTNS_e;
-
-#define LED_GREEN 	GPIO_PIN_15
-#define LED_ORANGE 	GPIO_PIN_14
-#define LED_RED 		GPIO_PIN_13
-#define LED_BLUE 		GPIO_PIN_12
-
-#define BTN_USR			GPIO_PIN_0
+// Buttons
+#define BTN_USR_PORT  	GPIO_PORT_A
+#define BTN_USR_PIN  		GPIO_PIN_0
 
 #endif

@@ -49,7 +49,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>myProj</OutputName>
+          <OutputName>withcmsis</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -133,12 +133,12 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>0</Capability>
-            <DriverSelection>-1</DriverSelection>
+            <Capability>1</Capability>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -387,24 +387,19 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
+              <FileName>io_handler.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\io_handler.h</FilePath>
+            </File>
+            <File>
+              <FileName>io_handler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\io_handler.c</FilePath>
+            </File>
+            <File>
               <FileName>MyBitMacros.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\MyBitMacros.h</FilePath>
-            </File>
-            <File>
-              <FileName>MyGpio.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\MyGpio.h</FilePath>
-            </File>
-            <File>
-              <FileName>MyGpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\MyGpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>MyRCC.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\MyRCC.h</FilePath>
             </File>
             <File>
               <FileName>io_mapping_v1.h</FileName>
@@ -412,44 +407,49 @@
               <FilePath>.\io_mapping_v1.h</FilePath>
             </File>
             <File>
-              <FileName>io_mapping_v2.h</FileName>
+              <FileName>io_pin_definitions.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\io_mapping_v2.h</FilePath>
+              <FilePath>.\io_pin_definitions.h</FilePath>
             </File>
             <File>
-              <FileName>MyTests.h</FileName>
+              <FileName>MyLed.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\MyTests.h</FilePath>
+              <FilePath>.\MyLed.h</FilePath>
             </File>
             <File>
-              <FileName>MyTests.c</FileName>
+              <FileName>MyLed.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MyTests.c</FilePath>
+              <FilePath>.\MyLed.c</FilePath>
             </File>
             <File>
-              <FileName>LEDS.h</FileName>
+              <FileName>MyButton.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\LEDS.h</FilePath>
+              <FilePath>.\MyButton.h</FilePath>
             </File>
             <File>
-              <FileName>LEDS.c</FileName>
+              <FileName>MyButton.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\LEDS.c</FilePath>
+              <FilePath>.\MyButton.c</FilePath>
             </File>
             <File>
-              <FileName>Buttons.h</FileName>
+              <FileName>MyEXTI.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Buttons.h</FilePath>
+              <FilePath>.\MyEXTI.h</FilePath>
             </File>
             <File>
-              <FileName>Buttons.c</FileName>
+              <FileName>MyEXTI.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Buttons.c</FilePath>
+              <FilePath>.\MyEXTI.c</FilePath>
             </File>
             <File>
-              <FileName>the_io_board.h</FileName>
+              <FileName>MyClock.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\the_io_board.h</FilePath>
+              <FilePath>.\MyClock.h</FilePath>
+            </File>
+            <File>
+              <FileName>MyClock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MyClock.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -480,12 +480,6 @@
       </component>
     </components>
     <files>
-      <file attr="config" category="header" name="CMSIS\Driver\Config\RTE_Device.h" version="2.4.5">
-        <instance index="0" removed="1">RTE\Device\STM32F407VGTx\RTE_Device.h</instance>
-        <component Capiversion="1.0.0" Cclass="Device" Cgroup="STM32Cube Framework" Csub="Classic" Cvendor="Keil" Cversion="1.7.6" condition="STM32F4 Framework Classic"/>
-        <package name="STM32F4xx_DFP" schemaVersion="1.4" url="http://www.keil.com/pack/" vendor="Keil" version="2.14.0"/>
-        <targetInfos/>
-      </file>
       <file attr="config" category="source" condition="STM32F407xx_ARMCC" name="Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f407xx.s" version="2.6.2">
         <instance index="0">RTE\Device\STM32F407VGTx\startup_stm32f407xx.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.6.3" condition="STM32F4 CMSIS"/>
@@ -493,12 +487,6 @@
         <targetInfos>
           <targetInfo name="Target 1"/>
         </targetInfos>
-      </file>
-      <file attr="config" category="header" name="MDK\Templates\Inc\stm32f4xx_hal_conf.h" version="1.7.6">
-        <instance index="0" removed="1">RTE\Device\STM32F407VGTx\stm32f4xx_hal_conf.h</instance>
-        <component Capiversion="1.0.0" Cclass="Device" Cgroup="STM32Cube Framework" Csub="Classic" Cvendor="Keil" Cversion="1.7.6" condition="STM32F4 Framework Classic"/>
-        <package name="STM32F4xx_DFP" schemaVersion="1.4" url="http://www.keil.com/pack/" vendor="Keil" version="2.14.0"/>
-        <targetInfos/>
       </file>
       <file attr="config" category="source" name="Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c" version="2.6.2">
         <instance index="0">RTE\Device\STM32F407VGTx\system_stm32f4xx.c</instance>
