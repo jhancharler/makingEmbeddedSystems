@@ -23,7 +23,7 @@ void initLEDs(void)
 	myLed.pin = LED_RED_PIN;
 	gpio_init(myLed);  // init red
 	myLed.pin = LED_BLUE_PIN;
-	gpio_init(myLed);  // init blue
+	// gpio_init(myLed);  // init blue
 	
 	ledsInitialised = 1;
 }
@@ -92,3 +92,11 @@ void toggleLED(LEDs_e led)
 		}
 	}
 }
+
+// Change led brightness
+// args - float From 0 to 1, 1 means on, 0 means off in between is % brightness
+void ledBrightness(float pct)
+{
+	
+}
+

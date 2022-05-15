@@ -57,9 +57,30 @@ typedef enum GPIO_PUPD_e
 // GPIO mode definitions
 typedef enum GPIO_MODE_e
 {
-	GPIO_MODE_INPUT = 0x00UL,
-	GPIO_MODE_OUTPUT = 0x01UL,
+	GPIO_MODE_INPUT = 0x0UL,
+	GPIO_MODE_OUTPUT = 0x1UL,
+	GPIO_MODE_AF = 0x2UL,
 } GPIO_MODE_e;
+
+typedef enum
+{
+	AF0 = 0x0UL,
+	AF1,
+	AF2,
+	AF3,
+	AF4,
+	AF5,
+	AF6,
+	AF7,
+	AF8,
+	AF9,
+	AF10,
+	AF11,
+	AF12,
+	AF13,
+	AF14,
+	AF15
+} GPIO_AF_e;
 
 // The GPIO type
 typedef struct GPIO_type
