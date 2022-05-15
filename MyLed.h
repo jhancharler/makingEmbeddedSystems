@@ -15,6 +15,6 @@ void initLEDs(void);
 void turnOnLED(LEDs_e led);
 void turnOffLED(LEDs_e led);
 void toggleLED(LEDs_e led);
-void ledBrightness(float pct);
+void LEDSelectBrightness(LEDs_e led, float dutyRatio);
 
 #endif

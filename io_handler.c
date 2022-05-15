@@ -142,6 +142,13 @@ void gpio_init(GPIO_type gpio)
 		uint32_t pupdrNewValue = gpio.pupdown << (gpio.pin * 2);
 		MODIFY_REG(ioPort->PUPDR, pupdrMask, pupdrNewValue);
 	}
+
+	if (gpio.mode == GPIO_MODE_AF)
+	{
+		uint8_t AFIndex = gpio.pin > GPIO_PIN_7 ? 1 : 0;  // get lower or higher AF register as needed
+		uint8_t AFShift = (gpio.pin % 8) * 4;
+		ioPort->AFR[AFIndex] |= (gpio.AFValue << AFShift);	// set AF for the pin we want to use
+	}
 }
 
 // Enables or disables an output GPIO

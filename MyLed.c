@@ -1,36 +1,50 @@
 #include "MyLed.h"
 #include "io_handler.h"
 #include "io_mapping_v1.h"
+#include "MyPWM.h"
 
 static int ledsInitialised = 0;  // will remain 1 once initialised
 
 typedef enum GPIO_STATE_e LED_STATE_e;
 
-const LED_STATE_e LED_ON = GPIO_STATE_HIGH;
-const LED_STATE_e LED_OFF = GPIO_STATE_LOW;
+const float LED_ON = 1.0;
+const float LED_OFF = 0.0;
 
 // Initialise all LEDs on the board
 void initLEDs(void)
 {
-	// enable clock
+	// enable clock, assuming all LEDs are on port D
 	rcc_enable_gpio_port_clock(GPIO_PORT_D);
-	
-	GPIO_type myLed = {.mode = GPIO_MODE_OUTPUT, .port = LED_PORT};
+	// set up the LED parameters
+	GPIO_type myLed;
+	myLed.mode = GPIO_MODE_AF;
+	myLed.port = LED_PORT;
 	myLed.pin = LED_GREEN_PIN;
-	gpio_init(myLed);		// init green
+	myLed.AFValue = LED_GREEN_TIM_AF;
+	// green LED
+	gpio_init(myLed);		// init green gpio
+	pwmInit(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL, LED_ON); // init GREEN led PWM
+	// orange LED
 	myLed.pin = LED_ORANGE_PIN;
+	myLed.AFValue = LED_ORANGE_AF;
 	gpio_init(myLed);  // init orange
+	pwmInit(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL, LED_ON); // init ORANGE led PWM
+	// red LED
 	myLed.pin = LED_RED_PIN;
+	myLed.AFValue = LED_RED_AF;
 	gpio_init(myLed);  // init red
+	pwmInit(LED_RED_TIM, LED_RED_TIM_CHANNEL, LED_ON); // init RED led PWM
+	// blue LED
 	myLed.pin = LED_BLUE_PIN;
-	// gpio_init(myLed);  // init blue
-	
+	myLed.AFValue = LED_BLUE_AF;
+	gpio_init(myLed);  // init blue
+	pwmInit(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL, 0.05); // init BLUE led PWM
 	ledsInitialised = 1;
 }
 
 // Set the state of the LEDs
 // led is a bitmask for the LEDs
-static void enableLEDs(LED_STATE_e newState, LEDs_e led)
+static void enableLEDs(float newDutyRatio, LEDs_e led)
 {
 	// only do so if LEDs initialised
 	if (ledsInitialised)
@@ -38,65 +52,103 @@ static void enableLEDs(LED_STATE_e newState, LEDs_e led)
 		// dis/enable any of the LEDs passed in
 		if (led & LED_RED)
 		{
-			gpio_enable(newState, LED_PORT, LED_RED_PIN);
+			updateDutyRatio(LED_RED_TIM, LED_RED_TIM_CHANNEL, newDutyRatio);
 		}
 		if (led & LED_ORANGE)
 		{
-			gpio_enable(newState, LED_PORT, LED_ORANGE_PIN);
+			updateDutyRatio(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL, newDutyRatio);
 		}
 		if (led & LED_BLUE)
 		{
-			gpio_enable(newState, LED_PORT, LED_BLUE_PIN);
+			updateDutyRatio(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL, newDutyRatio);
 		}
 		if (led & LED_GREEN)
 		{
-			gpio_enable(newState, LED_PORT, LED_GREEN_PIN);
+			updateDutyRatio(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL, newDutyRatio);
 		}
 	}
 }
 
+
 // Turn on LEDs if initialised
 void turnOnLED(LEDs_e led)
 {
-	enableLEDs(LED_ON, led);
+	// only do so if LEDs initialised
+	if (ledsInitialised)
+	{
+		// dis/enable any of the LEDs passed in
+		if (led & LED_RED)
+		{
+			channelOutputOn(LED_RED_TIM, LED_RED_TIM_CHANNEL);
+		}
+		if (led & LED_ORANGE)
+		{
+			channelOutputOn(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL);
+		}
+		if (led & LED_BLUE)
+		{
+			channelOutputOn(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL);
+		}
+		if (led & LED_GREEN)
+		{
+			channelOutputOn(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL);
+		}
+	}
 }
 
 // Turn off LEDs if initialised
 void turnOffLED(LEDs_e led)
 {
-	enableLEDs(LED_OFF, led);
-}
-
-// toggle selected LEDs
-void toggleLED(LEDs_e led)
-{
-	// only do so if LEDs initialised
+		// only do so if LEDs initialised
 	if (ledsInitialised)
 	{
-		// toggle any of the LEDs passed in
+		// dis/enable any of the LEDs passed in
 		if (led & LED_RED)
 		{
-			gpio_toggle(LED_PORT, LED_RED_PIN);
+			channelOutputOff(LED_RED_TIM, LED_RED_TIM_CHANNEL);
 		}
 		if (led & LED_ORANGE)
 		{
-			gpio_toggle(LED_PORT, LED_ORANGE_PIN);
+			channelOutputOff(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL);
 		}
 		if (led & LED_BLUE)
 		{
-			gpio_toggle(LED_PORT, LED_BLUE_PIN);
+			channelOutputOff(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL);
 		}
 		if (led & LED_GREEN)
 		{
-			gpio_toggle(LED_PORT, LED_GREEN_PIN);
+			channelOutputOff(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL);
 		}
 	}
 }
 
-// Change led brightness
-// args - float From 0 to 1, 1 means on, 0 means off in between is % brightness
-void ledBrightness(float pct)
+void LEDSelectBrightness(LEDs_e led, float dutyRatio)
 {
-	
+	enableLEDs(dutyRatio, led);
+}
+
+// toggle selected LEDs
+void toggleLED(LEDs_e led) // TODO for PWM
+{
+	if (ledsInitialised)
+	{
+		// dis/enable any of the LEDs passed in
+		if (led & LED_RED)
+		{
+			channelOutputToggle(LED_RED_TIM, LED_RED_TIM_CHANNEL);
+		}
+		if (led & LED_ORANGE)
+		{
+			channelOutputToggle(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL);
+		}
+		if (led & LED_BLUE)
+		{
+			channelOutputToggle(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL);
+		}
+		if (led & LED_GREEN)
+		{
+			channelOutputToggle(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL);
+		}
+	}
 }
 

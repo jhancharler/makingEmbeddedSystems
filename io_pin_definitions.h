@@ -89,6 +89,25 @@ typedef struct GPIO_type
 	GPIO_PIN_e pin;
 	GPIO_MODE_e mode;
 	GPIO_PUPD_e pupdown;
+	GPIO_AF_e AFValue;
 } GPIO_type;
+
+// Timer settings
+typedef enum
+{
+	Timer_TIM2,
+	Timer_TIM3,
+	Timer_TIM4,
+	Timer_TIM5
+} Timer_e;
+
+typedef enum
+{
+	Timer_Chan_1,
+	Timer_Chan_2,
+	Timer_Chan_3,
+	Timer_Chan_4
+} Tim_Channel_e;
+
 
 #endif

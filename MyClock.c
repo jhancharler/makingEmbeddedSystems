@@ -26,6 +26,12 @@ void initSystemClock(clockFrequency_e frequency)
 		TIM1->PSC = (700);
 		TIM1->CNT = 0; // reset count
 	}
+	else if (frequency == CLOCK_FQ_8) // else 8 Hz
+	{
+		TIM1->ARR = (2000);
+		TIM1->PSC = (1000);
+		TIM1->CNT = 0; // reset count
+	}
 	else
 	{
 		// shouldn't come here
