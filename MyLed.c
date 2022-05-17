@@ -9,6 +9,7 @@ typedef enum GPIO_STATE_e LED_STATE_e;
 
 const float LED_ON = 1.0;
 const float LED_OFF = 0.0;
+const float LED_INITIAL_STATE = LED_ON;
 
 // Initialise all LEDs on the board
 void initLEDs(void)
@@ -23,22 +24,22 @@ void initLEDs(void)
 	myLed.AFValue = LED_GREEN_TIM_AF;
 	// green LED
 	gpio_init(myLed);		// init green gpio
-	pwmInit(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL, LED_ON); // init GREEN led PWM
+	pwmInit(LED_GREEN_TIM, LED_GREEN_TIM_CHANNEL, LED_INITIAL_STATE); // init GREEN led PWM
 	// orange LED
 	myLed.pin = LED_ORANGE_PIN;
 	myLed.AFValue = LED_ORANGE_AF;
 	gpio_init(myLed);  // init orange
-	pwmInit(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL, LED_ON); // init ORANGE led PWM
+	pwmInit(LED_ORANGE_TIM, LED_ORANGE_TIM_CHANNEL, LED_INITIAL_STATE); // init ORANGE led PWM
 	// red LED
 	myLed.pin = LED_RED_PIN;
 	myLed.AFValue = LED_RED_AF;
 	gpio_init(myLed);  // init red
-	pwmInit(LED_RED_TIM, LED_RED_TIM_CHANNEL, LED_ON); // init RED led PWM
+	pwmInit(LED_RED_TIM, LED_RED_TIM_CHANNEL, LED_INITIAL_STATE); // init RED led PWM
 	// blue LED
 	myLed.pin = LED_BLUE_PIN;
 	myLed.AFValue = LED_BLUE_AF;
 	gpio_init(myLed);  // init blue
-	pwmInit(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL, 0.05); // init BLUE led PWM
+	pwmInit(LED_BLUE_TIM, LED_BLUE_TIM_CHANNEL, LED_INITIAL_STATE); // init BLUE led PWM
 	ledsInitialised = 1;
 }
 
