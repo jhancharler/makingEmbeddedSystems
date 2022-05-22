@@ -12,10 +12,12 @@ void initPeriodicSystemClocks(void)
 	// tim1
 	TIM1->CR1 &= ~TIM_CR1_CEN;  // disable timer
 	TIM1->PSC = 16000; // tim1 period, runs every 5 seconds
+	TIM1->EGR |= TIM_EGR_UG;  // generate update event to load prescaler
+	clearUpdate(); // since we set the PSC, event will be triggered, clear it
 	TIM1->ARR = 5000;
 	TIM1->CNT = 0;
 	TIM1->DIER |= TIM_DIER_UIE;  // enable interrupt on update
-	TIM1->CR1 |= TIM_CR1_URS;
+	TIM1->CR1 |= TIM_CR1_URS;  // only counter over/underflow generates irq or dma req if en
 	
 	// enable timers
 	TIM1->CR1 |= TIM_CR1_CEN;
@@ -31,6 +33,8 @@ void startTimer2(void)
 
 	// tim2
 	TIM2->PSC = 16000;
+	TIM2->EGR |= TIM_EGR_UG;  // generate update event to load prescaler
+	clearUpdateTim2();
 	TIM2->ARR = 1000;  // runs for 1 seconds
 	TIM2->CNT = 0;
 

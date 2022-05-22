@@ -22,13 +22,35 @@ typedef enum
 	Event_GO,
 	Event_STOP,
 	Event_TIMEOUT,
+	SIZE_Event,
 } Event_e;
 
 volatile State_e mainState = State_RED;
 volatile Event_e mainEvent = Event_STOP;
 
-// forward declarations
-void nextState(void);
+// Event table, define struct first
+typedef struct
+{
+	State_e currentState;
+	LEDs_e light;
+	State_e doEventGo;
+	State_e doEventStop;
+	State_e doEventTimeout;
+} StateMachine;
+
+// The state machine table
+StateMachine states[SIZE_Event] =
+{
+	// Index				 | State    			| LED 	 			| GO event   		| STOP event 		| TIMEOUT event
+	[State_RED] 	 = {State_RED, 			LED_RED, 			State_GREEN, 		State_RED,  		State_RED},
+	[State_GREEN]  = {State_GREEN, 		LED_GREEN, 		State_GREEN, 		State_YELLOW,  	State_GREEN},
+	[State_YELLOW] = {State_YELLOW, 	LED_ORANGE, 	State_YELLOW, 	State_YELLOW,  	State_RED},
+};
+
+// Event handlers
+void HandleEventGo(StateMachine* state);
+void HandleEventStop(StateMachine* state);
+void HandleEventTimeout(StateMachine* state);
 
 // todo: try doing static_assert to check size of float/double
 int main(void)
@@ -46,95 +68,78 @@ int main(void)
 	// need 1 timer for switching from timeout to stop (single shot)
 	
 	__enable_irq();
+	StateMachine currentState = states[State_RED];
 	while (1)
 	{
-		// Main state machine
-		switch (mainState)
+		switch (mainEvent)
 		{
-			case State_RED:
+			case Event_GO:
 			{
-				turnOnLED(LED_RED);
-				if (mainEvent == Event_GO)
-				{
-					turnOffLED(LED_RED);
-					turnOnLED(LED_GREEN);
-					nextState();
-				}
+				HandleEventGo(&currentState);
 			}
 			break;
-			case State_YELLOW:
+			case Event_STOP:
 			{
-				// if flag raised, go next state
-				if (mainEvent == Event_STOP)
-				{
-					turnOffLED(LED_ORANGE);
-					turnOffLED(LED_GREEN);
-					turnOnLED(LED_RED);
-					nextState();
-				}
+				HandleEventStop(&currentState);
 			}
 			break;
-			case State_GREEN:
+			case Event_TIMEOUT:
 			{
-				if (mainEvent == Event_TIMEOUT)
-				{
-					turnOnLED(LED_ORANGE);
-					startTimer2();
-					nextState();
-				}
+				HandleEventTimeout(&currentState);
 			}
 			break;
 			default:
 			{
-				// error handling
-				// todo, make error handling module
 			}
 			break;
 		};
 	}
 }
 
-void nextState(void)
+void HandleEventGo(StateMachine* currentState)
 {
-	// Main state machine
-		switch (mainState)
-		{
-			case State_RED:
-			{
-				mainState = State_GREEN;
-			}
-			break;
-			case State_YELLOW:
-			{
-				mainState = State_RED;
-			}
-			break;
-			case State_GREEN:
-			{
-				mainState = State_YELLOW;
-			}
-			break;
-			default:
-			{
-				// error handling
-				// todo, make error handling module
-			}
-			break;
-		};
+	turnOffLED(currentState->light);
+	*currentState = states[currentState->doEventGo];
+	turnOnLED(currentState->light);
+}
+
+void HandleEventStop(StateMachine* currentState)
+{
+	turnOffLED(currentState->light);
+	*currentState = states[currentState->doEventStop];
+	turnOnLED(currentState->light);
+}
+
+void HandleEventTimeout(StateMachine* currentState)
+{
+	turnOffLED(currentState->light);
+	*currentState = states[currentState->doEventTimeout];
+	turnOnLED(currentState->light);
 }
 
 // Periodic timer, switches state from GO to TIMEOUT and repeat
 void TIM1_UP_TIM10_IRQHandler(void)
 {
-		clearUpdate();
-		mainEvent = (mainEvent == Event_GO) ? Event_TIMEOUT : Event_GO;
+	__disable_irq();
+
+	mainEvent = mainEvent == Event_GO ? Event_STOP: Event_GO;
+	if (mainEvent == Event_STOP)
+	{
+		startTimer2();
+	}
+
+	clearUpdate();
+	
+	__enable_irq();
 }
 
 // One shot timer, changes state to Event_STOP
 void TIM2_IRQHandler(void)
 {
+	__disable_irq();
 		clearUpdateTim2();
-		mainEvent = Event_STOP;
+		mainEvent = Event_TIMEOUT;
+	__enable_irq();
 }
 
 void EXTI0_IRQHandler(void)
