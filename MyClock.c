@@ -11,10 +11,10 @@ void initPeriodicSystemClocks(void)
 
 	// tim1
 	TIM1->CR1 &= ~TIM_CR1_CEN;  // disable timer
-	TIM1->PSC = 16000; // tim1 period, runs every 5 seconds
+	TIM1->PSC = 16000; // tim1 period, runs every 1 second
 	TIM1->EGR |= TIM_EGR_UG;  // generate update event to load prescaler
 	clearUpdate(); // since we set the PSC, event will be triggered, clear it
-	TIM1->ARR = 5000;
+	TIM1->ARR = 500;
 	TIM1->CNT = 0;
 	TIM1->DIER |= TIM_DIER_UIE;  // enable interrupt on update
 	TIM1->CR1 |= TIM_CR1_URS;  // only counter over/underflow generates irq or dma req if en
@@ -70,7 +70,7 @@ void delayMs(ticks_t ms)
 
 ticks_t timeSince(ticks_t then)
 {
-	return sysemTicks - then;
+	return sysemTicks - then;  // todo, check for rollover, though is it needed?
 }
 
 ticks_t sysClock(void)

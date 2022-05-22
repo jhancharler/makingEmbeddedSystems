@@ -1,6 +1,7 @@
 #include "MyButton.h"
 #include "io_mapping_v1.h"
 #include "io_handler.h"
+#include "MyEXTI.h"
 
 //typedef enum Buttons_e
 //{
@@ -25,7 +26,7 @@ void initButtons(void)
 	gpio_init(usrButton);
 	
 	// initialise interrupt for button
-	// TODO
+	enableGpioIRQ(BTN_USR_PORT, BTN_USR_PIN, IRQ_FALLING);
 }
 
 // 1 if pressed,  0 if released
