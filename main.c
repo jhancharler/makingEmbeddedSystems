@@ -3,7 +3,7 @@
 // Let the callback be something we decide in a second...
 
 // TODO 0: Write a program for pelican crossing
-// There are two routined: go and stop.
+// There are two routines: go and stop.
 // Stop routine is green -> amber -> red | green 10s, amber 2 secs, red 10s.
 // Go routine is red -> amber (flash) -> green 10s | amber 2 sec flash every 0.5s | red 10s
 // When light is green, and a button is pressed, the Go routine is called after at most 2 seconds
@@ -80,9 +80,9 @@ int main(void)
 				{
 					isButtonPressed = 0; // ignore button press if button was pressed on other states
 				}
-				if (tasks[i].state == STATE_AMBER_SOLID && isButtonPressed == 1)
+				if (tasks[i].state == STATE_AMBER_SOLID && isButtonPressed == 1)	// pedestrian pressed button, go green after 1 sec at most
 				{
-					if (schedulerTime + 1000 < tasks[i].runNextAt)  // pedestrian pressed button, go green after 1 sec at most
+					if (schedulerTime + 1000 < tasks[i].runNextAt)
 					{
 						tasks[i].runNextAt = schedulerTime + 1000;
 					}
