@@ -461,6 +461,26 @@
               <FileType>5</FileType>
               <FilePath>.\MyPWM.h</FilePath>
             </File>
+            <File>
+              <FileName>MyWatchdog.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\MyWatchdog.h</FilePath>
+            </File>
+            <File>
+              <FileName>MyWatchdog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MyWatchdog.c</FilePath>
+            </File>
+            <File>
+              <FileName>MySPI.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MySPI.c</FilePath>
+            </File>
+            <File>
+              <FileName>MySPI.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\MySPI.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
