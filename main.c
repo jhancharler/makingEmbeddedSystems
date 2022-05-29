@@ -14,6 +14,7 @@
 #include "MyLed.h"
 #include "MyButton.h"
 #include "MyEXTI.h"
+#include "MyWatchdog.h"
 
 #define SCHEDULER_PERIOD	250
 int isButtonPressed = 0;
@@ -62,6 +63,8 @@ int main(void)
 	tasks[TASK_GREENLED].state = STATE_RED_SOLID;
 	
 	ticks_t schedulerTime = sysClock();
+	int watchdogtest = 0;
+	initWatchdog();
 	while(1)
 	{
 		// scheduler
@@ -90,9 +93,15 @@ int main(void)
 				}
 
 			}
+			watchdogtest++;
+			walkTheDog();
 		}
 		// do other things
-		volatile int ab = 10;
+		if (watchdogtest >= 40)
+		{
+			volatile int ab = 10;
+			while(1); // hang processor
+		}
 	}
 
 }
