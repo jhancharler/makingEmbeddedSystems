@@ -151,6 +151,26 @@ void gpio_init(GPIO_type gpio)
 	}
 }
 
+// de-initialises GPIO port and pin to default state
+void gpio_close(GPIO_PORT_e port, GPIO_PIN_e pin)
+{
+	// get handles and masks
+	GPIO_TypeDef* ioPort = _gpioPorts[port];  // get handle to IO port
+  uint32_t modeMask = _gpioModeMasks[pin];  // get value of mode mask
+
+	// reset mode
+	MODIFY_REG(ioPort->MODER, modeMask, 0x00);
+	
+	//reset pull-up/down 
+	uint32_t pupdrMask = _gpioPUPDRMasks[pin];
+	MODIFY_REG(ioPort->PUPDR, pupdrMask, 0x00);
+	
+	// reset AF
+	uint8_t AFIndex = pin > GPIO_PIN_7 ? 1 : 0;  // get lower or higher AF register as needed
+	uint8_t AFShift = (pin % 8) * 4;	// could & with 7 instead of mod 8!
+	ioPort->AFR[AFIndex] &= ~(0x7 << AFShift);	// set AF for the pin we want to use
+}
+
 // Enables or disables an output GPIO
 void gpio_enable(GPIO_STATE_e state, GPIO_PORT_e port, GPIO_PIN_e pin)
 {

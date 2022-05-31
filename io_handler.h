@@ -8,6 +8,7 @@
 
 // GPIO Functions
 void gpio_init(GPIO_type gpio);
+void gpio_close(GPIO_PORT_e port, GPIO_PIN_e pin);
 
 // GPIO Output
 void gpio_enable(GPIO_STATE_e state, GPIO_PORT_e port, GPIO_PIN_e pin);

@@ -2,6 +2,7 @@
 #include "io_handler.h"
 #include "stm32f407xx.h"
 #include "MyBitMacros.h"
+#include <stdint.h>
 
 #define SPI1_CLK_EN()	(RCC->APB2ENR |= RCC_APB2ENR_SPI1EN)
 
@@ -21,6 +22,7 @@ void spi_open(void)
 	SPI1_CLK_EN();
 	// Enable clock for the GPIOs
 	rcc_enable_gpio_port_clock(GPIO_PORT_A);
+	rcc_enable_gpio_port_clock(GPIO_PORT_E);
 	// Select GPIO as alternate functions
 	GPIO_type spiPin = 
 	{
@@ -51,13 +53,15 @@ void spi_open(void)
 	MODIFY_REG(SPI1->CR1, SPI_CR1_CPHA_Msk, SPI_CR1_CPHA);  // CPHA = 1, second transition is first data capture edge
 	
 	// 3. Select DFF bit for 8 or 16  bit data frame format []
-	MODIFY_REG(SPI1->CR1, SPI_CR1_DFF_Msk, ~SPI_CR1_DFF); // 8bit frame format
-	
+	MY_CLEAR_BIT(SPI1->CR1, SPI_CR1_DFF_Pos);  // 8 bit frame format
+	 
 	// 4. Configure frame format for LSB / MSB first in SPI_CR1
-	SPI1->CR1 &= ~(SPI_CR1_LSBFIRST);  // 0 = MSB first
+	MY_CLEAR_BIT(SPI1->CR1, SPI_CR1_LSBFIRST_Pos); // 0 = MSB first
 	
 	// 5. Configure NSS pin
 	// It seems CS is connected to PE3 which is not part of the SPI1 periph. So do it ourselves...
+	// NSS output enable if we want to use master mode. I expect this to do nothing to the I/Os as GPIO AF is not set
+	SPI1->CR2 |= SPI_CR2_SSOE;	// enable output
 	
 	// 6. Set FRF bit in SPI_CR2 to select TI protocol for serial comms if needed
 	// Let's use SPI Motorola mode for now as we seem to have more control over polarity
@@ -67,23 +71,34 @@ void spi_open(void)
 	SPI1->CR1 |= SPI_CR1_SPE; // enable SPI!
 }
 
+// Resets GPIOs and SPI1 peripheral.
 void spi_close(void)
-{}
-	
-void spi_read(void)
-{}
-	
-void spi_write(void)
 {
-	// Transmit begins when a byte is written in the Tx buffer
-	unsigned char myFirstByte = 0xA6;
+	MY_CLEAR_BIT(SPI1->CR1, SPI_CR1_SPE_Pos);	// disable SPI
+	SPI1->CR1 = 0;
+	SPI1->CR2 = 0;
 	
-	// TXE flag is set when data goes to shift register from Tx buffer. And interrupt
-	// fired if TXEIE bit is set in SPI_CR2
-	
-	SPI1->DR = myFirstByte; // of it goes!
-	
-	volatile static int a = 5;
+	// un-enable GPIO pins...
+	gpio_close(GPIO_PORT_A, GPIO_PIN_5);
+	gpio_close(GPIO_PORT_A, GPIO_PIN_6);
+	gpio_close(GPIO_PORT_A, GPIO_PIN_7);
+	gpio_close(GPIO_PORT_E, GPIO_PIN_3);
+}
+
+// Transmit and receive from SPI
+void spi_read_write(SpiTransfer_s* transfer)
+{
+	gpio_enable(GPIO_STATE_LOW, GPIO_PORT_E, GPIO_PIN_3); // set CS low to select peripheral
+	for (int i = 0; i < transfer->bytesToXferReceive; i++)
+	{
+		// todo: could this be optimised, i.e. transmit once before loop then transmit again before reading
+		SPI1->DR = *(transfer->txBuf);	// off it goes!
+		while ((SPI1->SR & SPI_SR_TXE) == 0);  //TXE is 1 when it can receive another byte
+		while ((SPI1->SR & SPI_SR_RXNE) == 0);	// RXNE is 1 when we have a byte to read
+		(transfer->rxBuf)[i] = SPI1->DR;	// read byte
+	}
+	while ((SPI1->SR & SPI_SR_BSY) == 1);  // wait until not busy
+	gpio_enable(GPIO_STATE_HIGH, GPIO_PORT_E, GPIO_PIN_3); // set CS high again to de-select peripheral
 }
 	
 void spi_ioctl(void)

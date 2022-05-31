@@ -24,14 +24,25 @@ int main(void)
 	initLEDs();
 	initButtons();
 	initPeriodicSystemClocks();
-	spi_open();
+	// spi_open();
 	
 	while(1)
 	{
 		if (isButtonPressed)
 		{
 			isButtonPressed = 0;
-			spi_write();
+			uint32_t sz = 2;
+			uint8_t spiBufTransfer[2] = {0x8F, 0xFF};
+			uint8_t spiBufRecv[2] = {0};
+			SpiTransfer_s transfer = 
+			{
+					.txBuf = spiBufTransfer,
+					.rxBuf = spiBufRecv,
+					.bytesToXferReceive = sz
+			};
+			spi_read_write(&transfer);
+			volatile int a = 2l;
+			spi_close();
 		}
 	}
 }

@@ -1,0 +1,6 @@
+#ifndef MY_LIS3DSH_H_INCLUDED
+#define MY_LIS3DSH_H_INCLUDED
+
+
+
+#endif
