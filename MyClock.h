@@ -21,6 +21,7 @@ uint8_t updateHappened(void);
 void clearUpdate(void);
 ticks_t sysClock(void);
 
+uint64_t msPassedSinceBoot(void);
 void delayMs(ticks_t ms);
 ticks_t timeSince(ticks_t then);
 

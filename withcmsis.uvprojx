@@ -481,6 +481,21 @@
               <FileType>5</FileType>
               <FilePath>.\MySPI.h</FilePath>
             </File>
+            <File>
+              <FileName>MyLIS3DSH.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\MyLIS3DSH.h</FilePath>
+            </File>
+            <File>
+              <FileName>LIS3DSH_REGISTERS.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\LIS3DSH_REGISTERS.h</FilePath>
+            </File>
+            <File>
+              <FileName>MyLIS3DSH.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MyLIS3DSH.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

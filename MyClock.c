@@ -1,12 +1,16 @@
 #include <stm32f407xx.h>
 #include "MyClock.h"
 
-static volatile ticks_t sysemTicks = 0;
+static volatile ticks_t systemTicks = 0;
+
+#define SYSCLOCK_DIVIDER	1000
+#define MILLISECOND	1000
+#define TICKS_PER_MS	((SYSCLOCK_DIVIDER) / MILLISECOND)
 
 void initPeriodicSystemClocks(void)
 {
 	// Enable system clock
-	SysTick_Config(SystemCoreClock / 1000);  // tick every ms
+	SysTick_Config(SystemCoreClock / SYSCLOCK_DIVIDER);  // tick every ms
 	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;   // 5 secs periodic
 
 	// tim1
@@ -64,21 +68,26 @@ void clearUpdateTim2(void)
 
 void delayMs(ticks_t ms)
 {
-	ticks_t then = sysemTicks;
+	ticks_t then = systemTicks;
 	while (timeSince(then) < ms);
 }
 
 ticks_t timeSince(ticks_t then)
 {
-	return sysemTicks - then;  // todo, check for rollover, though is it needed?
+	return systemTicks - then;  // todo, check for rollover incase bad param is passed!
 }
 
 ticks_t sysClock(void)
 {
-	return sysemTicks;
+	return systemTicks;
 }
 
 void SysTick_Handler(void)
 {
-	sysemTicks++;
+	systemTicks++;
+}
+
+uint64_t msPassedSinceBoot(void)
+{
+	return systemTicks / TICKS_PER_MS;
 }

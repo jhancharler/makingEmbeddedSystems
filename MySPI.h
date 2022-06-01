@@ -7,6 +7,7 @@ typedef struct SpiTransfer_s
 {
 	uint8_t* txBuf;
 	uint8_t* rxBuf;
+	uint8_t readOnly;
 	uint32_t bytesToXferReceive;
 } SpiTransfer_s;
 

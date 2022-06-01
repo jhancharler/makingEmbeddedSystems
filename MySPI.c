@@ -91,9 +91,8 @@ void spi_read_write(SpiTransfer_s* transfer)
 	gpio_enable(GPIO_STATE_LOW, GPIO_PORT_E, GPIO_PIN_3); // set CS low to select peripheral
 	for (int i = 0; i < transfer->bytesToXferReceive; i++)
 	{
-		// todo: could this be optimised, i.e. transmit once before loop then transmit again before reading
-		SPI1->DR = *(transfer->txBuf);	// off it goes!
 		while ((SPI1->SR & SPI_SR_TXE) == 0);  //TXE is 1 when it can receive another byte
+		SPI1->DR = (transfer->txBuf[i]);	// off it goes!	
 		while ((SPI1->SR & SPI_SR_RXNE) == 0);	// RXNE is 1 when we have a byte to read
 		(transfer->rxBuf)[i] = SPI1->DR;	// read byte
 	}

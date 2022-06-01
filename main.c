@@ -15,6 +15,7 @@
 #include "MyButton.h"
 #include "MyEXTI.h"
 #include "MySPI.h"
+#include "MyLIS3DSH.h"
 
 #define SCHEDULER_PERIOD	250
 int isButtonPressed = 0;
@@ -24,25 +25,17 @@ int main(void)
 	initLEDs();
 	initButtons();
 	initPeriodicSystemClocks();
-	// spi_open();
+
+	accel_lis3dsh_init();
+	
+	AccelData myData = { 0 };
 	
 	while(1)
 	{
 		if (isButtonPressed)
 		{
+			accel_lis3dsh_read_data(&myData);
 			isButtonPressed = 0;
-			uint32_t sz = 2;
-			uint8_t spiBufTransfer[2] = {0x8F, 0xFF};
-			uint8_t spiBufRecv[2] = {0};
-			SpiTransfer_s transfer = 
-			{
-					.txBuf = spiBufTransfer,
-					.rxBuf = spiBufRecv,
-					.bytesToXferReceive = sz
-			};
-			spi_read_write(&transfer);
-			volatile int a = 2l;
-			spi_close();
 		}
 	}
 }
