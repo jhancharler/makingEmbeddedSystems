@@ -5,7 +5,14 @@
 #include <stdint.h>
 
 #define SPI1_CLK_EN()	(RCC->APB2ENR |= RCC_APB2ENR_SPI1EN)
+#define MY_MAX(a, b)    ((a) > (b) ? (a) : (b))
 
+/*
+* @brief Initialises SPI driver
+* @details Currently only inits SPI1, and utilises DMA
+* @params None
+* @return void
+*/
 // TODO: make function configurable
 void spi_open(void)
 {	
@@ -68,6 +75,12 @@ void spi_open(void)
 	
 	// 7. Select MSTR and SPE bits. They will remain set only if NSS pin is connected to a high level signal. MOSI  is out MISO in.
 	SPI1->CR1 |= SPI_CR1_MSTR;  // SPI as master mode
+    
+    // 8. Handle DMA
+    #if (1)
+    SPI1->CR2 |= SPI_CR2_RXDMAEN;   // enable receive DMA
+    #endif
+    
 	SPI1->CR1 |= SPI_CR1_SPE; // enable SPI!
 }
 
@@ -85,19 +98,47 @@ void spi_close(void)
 	gpio_close(GPIO_PORT_E, GPIO_PIN_3);
 }
 
-// Transmit and receive from SPI
+/* 
+ * @brief Transmit and receive from SPI
+ * @details Will try to read or transmit only the number of times desired.
+ *          This is to keep it functionign with DMA.
+ *          If DMA receive, make the read buffer 0, and the write buffer number of bytes to read
+ *          If DMA transmit, make write buffer 0, and the read buffer number of bytes to write
+*           TODO, check if above works. Seems awkward!
+ *
+*/
 void spi_read_write(SpiTransfer_s* transfer)
 {
+    uint32_t bytesToXferReceive = MY_MAX(transfer->bytesToReceive, transfer->bytesToTransmit);
 	gpio_enable(GPIO_STATE_LOW, GPIO_PORT_E, GPIO_PIN_3); // set CS low to select peripheral
-	for (int i = 0; i < transfer->bytesToXferReceive; i++)
+	for (uint32_t i = 0; i < bytesToXferReceive; i++)
 	{
-		while ((SPI1->SR & SPI_SR_TXE) == 0);  //TXE is 1 when it can receive another byte
-		SPI1->DR = (transfer->txBuf[i]);	// off it goes!	
-		while ((SPI1->SR & SPI_SR_RXNE) == 0);	// RXNE is 1 when we have a byte to read
-		(transfer->rxBuf)[i] = SPI1->DR;	// read byte
+        if (transfer->bytesToTransmit > 0)  // do transaction if we have bytes to transfer
+        {
+            while ((SPI1->SR & SPI_SR_TXE) == 0);  //TXE is 1 when it can receive another byte
+            SPI1->DR = (transfer->txBuf[i]);	// off it goes!	
+            transfer->bytesToTransmit--;
+        }
+		if (transfer->bytesToReceive > 0)   // receive
+        {
+            while ((SPI1->SR & SPI_SR_RXNE) == 0);	// RXNE is 1 when we have a byte to read
+            (transfer->rxBuf)[i] = SPI1->DR;	// read byte
+            transfer->bytesToReceive--;
+        }
 	}
 	while ((SPI1->SR & SPI_SR_BSY) == 1);  // wait until not busy
 	gpio_enable(GPIO_STATE_HIGH, GPIO_PORT_E, GPIO_PIN_3); // set CS high again to de-select peripheral
+}
+
+/*
+ * @brief Returns rx buffer address as 32 bit value
+ * @details Using it to hide STM32 header file
+ * @params None
+ * @return uint32 The address of the SPI1 data register
+*/
+uint32_t getSPI1RxReg(void)
+{
+    return (uint32_t)(&SPI1->DR); // WARNING: Assumes 32 bit addr
 }
 	
 void spi_ioctl(void)

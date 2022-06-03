@@ -18,7 +18,8 @@ static SpiTransfer_s spiTransfer =
 {
 	.txBuf = spiTxBuf,
 	.rxBuf = spiRxBuf,
-	.bytesToXferReceive = 0
+    .bytesToTransmit = 0,
+    .bytesToReceive = 0,
 };
 
 typedef enum ErrorCode_e
@@ -37,7 +38,8 @@ typedef enum ErrorCode_e
 static int lis3dsh_write_reg(uint8_t reg, uint8_t value)
 {
 	MY_CLEAR_BIT(reg, 7); // MSB 0 means write
-	spiTransfer.bytesToXferReceive = 2;
+	spiTransfer.bytesToTransmit = 2;
+    spiTransfer.bytesToReceive = 0; // don't care to read
 	spiTransfer.txBuf[0] = reg;
 	spiTransfer.txBuf[1] = value;
 	spi_read_write(&spiTransfer);	// x20 x67
@@ -48,11 +50,22 @@ static int lis3dsh_write_reg(uint8_t reg, uint8_t value)
 static int lis3dsh_read_reg(uint8_t reg, uint8_t* value)
 {
 	MY_SET_BIT(reg, 7); // MSB 1 means reads
-	spiTransfer.bytesToXferReceive = 2;
+	spiTransfer.bytesToTransmit = 2;
+    spiTransfer.bytesToReceive = 2;
 	spiTransfer.txBuf[0] = reg;
 	spi_read_write(&spiTransfer);
 	*value = spiTransfer.rxBuf[1];
 	return EC_SUCCESS;
+}
+
+static int lis3dsh_read_reg_continuous_DMA(uint8_t reg, uint32_t sizeToRead)
+{
+    MY_SET_BIT(reg, 7); // MSB 1 means reads
+    spiTransfer.bytesToTransmit = sizeToRead;
+    spiTransfer.bytesToReceive =   0; // DMA will do the reading
+    spiTransfer.txBuf[0] = reg;
+    spi_read_write(&spiTransfer);
+    return 0;
 }
 
 /*
@@ -121,3 +134,19 @@ int accel_lis3dsh_read_data(AccelData* data)
 
 	return EC_SUCCESS;
 }
+
+
+
+/*
+* @brief Reads latest accelerometer data using DMA receive
+* @detail
+* @param AccelData* data - pointer to data buffer we want to fill
+* @param uint32_t size - size of the pointer
+* @return error code
+*/
+int accel_lis3dsh_read_data_DMA(uint32_t size)
+{
+    lis3dsh_read_reg_continuous_DMA(LIS3DSH_OUT_X_H, size);
+	return EC_SUCCESS;
+}
+

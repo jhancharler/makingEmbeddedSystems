@@ -12,5 +12,6 @@ typedef struct AccelData
 
 void accel_lis3dsh_init(void);
 int accel_lis3dsh_read_data(AccelData* data);
+int accel_lis3dsh_read_data_DMA(uint32_t size);
 
 #endif

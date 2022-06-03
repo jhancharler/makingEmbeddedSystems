@@ -496,6 +496,16 @@
               <FileType>1</FileType>
               <FilePath>.\MyLIS3DSH.c</FilePath>
             </File>
+            <File>
+              <FileName>MyDMA.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\MyDMA.h</FilePath>
+            </File>
+            <File>
+              <FileName>MyDMA.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MyDMA.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
